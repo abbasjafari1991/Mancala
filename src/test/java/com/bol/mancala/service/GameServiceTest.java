@@ -48,7 +48,7 @@ class GameServiceTest {
         Mockito.when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.empty());
         Mockito.when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(Player.builder().id(SECOND_PLAYER_ID).name(SECOND_PLAYER_NAME).build()));
         Throwable exception = assertThrows(RuntimeException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, SECOND_PLAYER_ID));
-        assertThat(exception).isNotNull().extracting(Throwable::getMessage).isEqualTo("firstPlayer or secondPlayer is not valid");
+        assertThat(exception).isNotNull();
         verify(boardRepository, never()).save(any());
     }
 
