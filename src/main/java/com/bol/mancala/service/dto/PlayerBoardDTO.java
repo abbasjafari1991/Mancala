@@ -14,10 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 public class PlayerBoardDTO {
 
-    private Long id;
     private Long playerId;
     private List<PitDTO> pits;
-    private StoreDTO store;
+    private Integer storeAmount;
 
 
 }

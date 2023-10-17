@@ -4,6 +4,7 @@ import com.bol.mancala.entity.*;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
+import com.bol.mancala.service.mapper.BoardMapper;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -24,10 +25,12 @@ public class GameService {
     private static final int STORE_INIT_AMOUNT = 0;
     private final PlayerRepository playerRepository;
     private final BoardRepository boardRepository;
+    private final BoardMapper boardMapper;
 
-    public GameService(PlayerRepository playerRepository, BoardRepository boardRepository) {
+    public GameService(PlayerRepository playerRepository, BoardRepository boardRepository, BoardMapper boardMapper) {
         this.playerRepository = playerRepository;
         this.boardRepository = boardRepository;
+        this.boardMapper = boardMapper;
     }
 
     @Transactional
@@ -49,7 +52,7 @@ public class GameService {
                 .build();
 
         board = boardRepository.save(board);
-        return BoardDTO.builder().id(board.getId()).build();
+        return boardMapper.toDto(board);
 
     }
 
