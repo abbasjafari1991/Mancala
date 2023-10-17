@@ -37,7 +37,7 @@ public class GameService {
         Optional<Player> firstPlayer = playerRepository.findById(firstPlayerId);
         Optional<Player> secondPlayer = playerRepository.findById(secondPlayerId);
         if (firstPlayer.isEmpty() || secondPlayer.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "firstPlayer or secondPlayer is not valid");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "FirstPlayer or secondPlayer is not valid");
         }
         EnumMap<PlayerNumber, PlayerBoard> playerBoards = new EnumMap<>(PlayerNumber.class);
         Stream.of(PlayerNumber.ONE, PlayerNumber.TWO).forEach(playerNumber -> {

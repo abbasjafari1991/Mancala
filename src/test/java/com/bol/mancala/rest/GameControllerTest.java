@@ -40,8 +40,6 @@ class GameControllerTest {
 
     @Test
     void testCreateBoard() throws Exception {
-
-
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/game/create-board")
                         .param("firstPlayerId", FIRST_PLAYER_ID.toString())
