@@ -52,4 +52,12 @@ class GameServiceTest {
         verify(boardRepository, never()).save(any());
     }
 
+    @Test
+    void shouldThrowsExceptionCreateBordWhenFirstPlayerIdsAreEquals() {
+        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, FIRST_PLAYER_ID));
+        assertThat(exception).isNotNull();
+        verify(boardRepository, never()).save(any());
+        verify(playerRepository, never()).findById(any());
+    }
+
 }
