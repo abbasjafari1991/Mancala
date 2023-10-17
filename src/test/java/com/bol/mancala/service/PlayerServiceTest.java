@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -64,5 +65,6 @@ class PlayerServiceTest {
       // Mock the repository's deleteById method
       Mockito.doNothing().when(playerRepository).deleteById(1L);
       playerService.delete(1L);
+      verify(playerRepository).deleteById(1L);
    }
 }
