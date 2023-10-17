@@ -1,19 +1,23 @@
 package com.bol.mancala.service.dto;
 
-import com.bol.mancala.entity.PlayerNumber;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardDTO {
+public class PlayerBoardDTO {
+
     private Long id;
-    private Map<PlayerNumber, PlayerBoardDTO> playerBoards;
-    private PlayerNumber playerRound;
+    private Long playerId;
+    private List<PitDTO> pits;
+    private StoreDTO store;
+
+
 }
