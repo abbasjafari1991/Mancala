@@ -2,19 +2,26 @@ package com.bol.mancala.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Board {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @OneToMany(cascade = CascadeType.ALL)
     private Map<PlayerNumber, PlayerBoard> playerBoards;
+    @Enumerated(EnumType.STRING)
     private PlayerNumber playerRound;
 
 }
