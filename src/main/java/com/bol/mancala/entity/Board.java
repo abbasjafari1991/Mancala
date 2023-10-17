@@ -23,5 +23,7 @@ public class Board {
     private Map<PlayerNumber, PlayerBoard> playerBoards;
     @Enumerated(EnumType.STRING)
     private PlayerNumber playerRound;
+    @Version
+    private Long version;
 
 }

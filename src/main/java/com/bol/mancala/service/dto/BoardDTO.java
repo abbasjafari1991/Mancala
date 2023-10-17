@@ -16,4 +16,5 @@ public class BoardDTO {
     private Long id;
     private Map<PlayerNumber, PlayerBoardDTO> playerBoards;
     private PlayerNumber playerRound;
+    private Long version;
 }
