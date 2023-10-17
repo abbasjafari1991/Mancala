@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 class GameControllerTest {
 
     private static final Long FIRST_PLAYER_ID = 1L;
