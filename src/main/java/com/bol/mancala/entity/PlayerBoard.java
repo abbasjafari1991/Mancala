@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.Map;
 
 @Entity
 @Data
@@ -25,7 +25,7 @@ public class PlayerBoard {
     @ManyToOne
     private Player player;
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Pit> pits;
+    private Map<Integer, Pit> pits;
     @ManyToOne(cascade = CascadeType.ALL)
     private Store store;
 

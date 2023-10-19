@@ -9,7 +9,6 @@ import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -56,28 +55,12 @@ class GameServiceTest {
         assertThat(board).extracting(Board::getStatus).isEqualTo(GameStatus.IN_PROGRESS);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().keySet()).isNotNull().extracting(Set::size).isEqualTo(2);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE)).isNotNull();
-        assertThat(board.getPlayerBoards().get(PlayerNumber.ONE).getPits())
-                .isNotEmpty().hasSize(6)
-                .extracting(Pit::getAmount, Pit::getIndex)
-                .containsExactlyInAnyOrder(
-                        Tuple.tuple(4, 0),
-                        Tuple.tuple(4, 1),
-                        Tuple.tuple(4, 2),
-                        Tuple.tuple(4, 3),
-                        Tuple.tuple(4, 4),
-                        Tuple.tuple(4, 5));
+        assertThat(board.getPlayerBoards().get(PlayerNumber.ONE).getPits()).isNotEmpty().hasSize(6).containsKeys(0, 1, 2, 3, 4, 5);
+        assertThat(board.getPlayerBoards().get(PlayerNumber.ONE).getPits().values()).isNotEmpty().hasSize(6).contains(Pit.builder().amount(4).build());
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE).getStore()).isNotNull().extracting(Store::getAmount).isEqualTo(0);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.TWO)).isNotNull();
-        assertThat(board.getPlayerBoards().get(PlayerNumber.TWO).getPits())
-                .isNotEmpty().hasSize(6)
-                .extracting(Pit::getAmount, Pit::getIndex)
-                .containsExactlyInAnyOrder(
-                        Tuple.tuple(4, 0),
-                        Tuple.tuple(4, 1),
-                        Tuple.tuple(4, 2),
-                        Tuple.tuple(4, 3),
-                        Tuple.tuple(4, 4),
-                        Tuple.tuple(4, 5));
+        assertThat(board.getPlayerBoards().get(PlayerNumber.TWO).getPits()).isNotEmpty().hasSize(6).containsKeys(0, 1, 2, 3, 4, 5);
+        assertThat(board.getPlayerBoards().get(PlayerNumber.TWO).getPits().values()).isNotEmpty().hasSize(6).containsOnly(Pit.builder().amount(4).build());
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.TWO).getStore()).isNotNull().extracting(Store::getAmount).isEqualTo(0);
 
     }

@@ -20,6 +20,5 @@ public class Pit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Integer amount;
-    private Integer index;
 
 }

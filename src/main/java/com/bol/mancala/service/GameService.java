@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -70,8 +71,9 @@ public class GameService {
     }
 
     private PlayerBoard createPlayerBoard(Player player) {
-        var pits = IntStream.range(0, SIZE_OF_PIT).mapToObj(i -> Pit.builder().index(i).amount(PIT_INIT_AMOUNT).build()).collect(Collectors.toSet());
-        return PlayerBoard.builder().player(player).pits(pits).store(Store.builder().amount(STORE_INIT_AMOUNT).build()).build();
+        Map<Integer, Pit> pits = new HashMap<>();
+        IntStream.range(0, SIZE_OF_PIT).forEach(i -> pits.put(i, Pit.builder().amount(PIT_INIT_AMOUNT).build()));
+        return PlayerBoard.builder().player(player).pits(pits).store(new Store(STORE_INIT_AMOUNT)).build();
     }
 
     /*public BoardDTO move(@NotNull Long boardId, @NotNull Integer index) {
