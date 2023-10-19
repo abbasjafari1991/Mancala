@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.EnumMap;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -44,28 +45,49 @@ public class GameService {
         if (firstPlayer.isEmpty() || secondPlayer.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "FirstPlayer or secondPlayer is not valid");
         }
-        EnumMap<PlayerNumber, PlayerBoard> playerBoards = new EnumMap<>(PlayerNumber.class);
-        Stream.of(PlayerNumber.ONE, PlayerNumber.TWO).forEach(playerNumber -> {
-            PlayerBoard playerBoard = createPlayerBoard(playerNumber == PlayerNumber.ONE ? firstPlayer.get() : secondPlayer.get());
-            playerBoards.put(playerNumber, playerBoard);
-        });
-        Board board = Board.builder().status(GameStatus.IN_PROGRESS).playerBoards(playerBoards)
-                .playerRound(ThreadLocalRandom.current().nextBoolean() ? PlayerNumber.ONE : PlayerNumber.TWO)
-                .build();
+        Board board = createBoard(firstPlayer, secondPlayer);
 
         board = boardRepository.save(board);
         return boardMapper.toDto(board);
 
     }
 
-    private PlayerBoard createPlayerBoard(Player player) {
-        var pitList = IntStream.range(0, SIZE_OF_PIT).mapToObj(i -> Pit.builder().index(i).amount(PIT_INIT_AMOUNT).build()).toList();
-        return PlayerBoard.builder().player(player).pits(pitList).store(Store.builder().amount(STORE_INIT_AMOUNT).build()).build();
+    private Board createBoard(Optional<Player> firstPlayer, Optional<Player> secondPlayer) {
+        EnumMap<PlayerNumber, PlayerBoard> playerBoards = createPlayerBoards(firstPlayer, secondPlayer);
+        Board board = Board.builder().status(GameStatus.IN_PROGRESS).playerBoards(playerBoards)
+                .playerRound(ThreadLocalRandom.current().nextBoolean() ? PlayerNumber.ONE : PlayerNumber.TWO)
+                .build();
+        return board;
     }
 
-    public BoardDTO move(Long gameId, Integer index) {
+    private EnumMap<PlayerNumber, PlayerBoard> createPlayerBoards(Optional<Player> firstPlayer, Optional<Player> secondPlayer) {
+        EnumMap<PlayerNumber, PlayerBoard> playerBoards = new EnumMap<>(PlayerNumber.class);
+        Stream.of(PlayerNumber.ONE, PlayerNumber.TWO).forEach(playerNumber -> {
+            PlayerBoard playerBoard = createPlayerBoard(playerNumber == PlayerNumber.ONE ? firstPlayer.get() : secondPlayer.get());
+            playerBoards.put(playerNumber, playerBoard);
+        });
+        return playerBoards;
+    }
 
+    private PlayerBoard createPlayerBoard(Player player) {
+        var pits = IntStream.range(0, SIZE_OF_PIT).mapToObj(i -> Pit.builder().index(i).amount(PIT_INIT_AMOUNT).build()).collect(Collectors.toSet());
+        return PlayerBoard.builder().player(player).pits(pits).store(Store.builder().amount(STORE_INIT_AMOUNT).build()).build();
+    }
+
+    /*public BoardDTO move(@NotNull Long boardId, @NotNull Integer index) {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        if (optionalBoard.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board not valid");
+        }
+        optionalBoard.ifPresent(board -> {
+            PlayerNumber playerRound = board.getPlayerRound();
+            PlayerBoard playerBoard = board.getPlayerBoards().get(playerRound);
+            Pit selectedPit = playerBoard.getPits().get(index - 1);
+            for (int i = selectedPit.getIndex(); i < playerBoard.getPits().size(); i++) {
+
+            }
+        });
         return null;
 
-    }
+    }*/
 }

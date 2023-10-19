@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = PitMapper.class)
 public interface PlayerBoardMapper {
     @Mappings({
             @Mapping(source = "store.amount", target = "storeAmount"),
