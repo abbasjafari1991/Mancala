@@ -1,6 +1,11 @@
 package com.bol.mancala.service;
 
-import com.bol.mancala.entity.*;
+import com.bol.mancala.entity.Board;
+import com.bol.mancala.entity.Pit;
+import com.bol.mancala.entity.Player;
+import com.bol.mancala.entity.Store;
+import com.bol.mancala.entity.enumeration.GameStatus;
+import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
@@ -48,6 +53,7 @@ class GameServiceTest {
         assertThat(boardDTO).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(0L);
         Board board = boardArgumentCaptor.getValue();
         assertThat(board).extracting(Board::getPlayerRound).isNotNull();
+        assertThat(board).extracting(Board::getStatus).isEqualTo(GameStatus.IN_PROGRESS);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().keySet()).isNotNull().extracting(Set::size).isEqualTo(2);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE)).isNotNull();
         assertThat(board.getPlayerBoards().get(PlayerNumber.ONE).getPits())

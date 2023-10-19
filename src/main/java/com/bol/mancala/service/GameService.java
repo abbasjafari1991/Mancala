@@ -1,6 +1,8 @@
 package com.bol.mancala.service;
 
 import com.bol.mancala.entity.*;
+import com.bol.mancala.entity.enumeration.GameStatus;
+import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
@@ -47,7 +49,7 @@ public class GameService {
             PlayerBoard playerBoard = createPlayerBoard(playerNumber == PlayerNumber.ONE ? firstPlayer.get() : secondPlayer.get());
             playerBoards.put(playerNumber, playerBoard);
         });
-        Board board = Board.builder().playerBoards(playerBoards)
+        Board board = Board.builder().status(GameStatus.IN_PROGRESS).playerBoards(playerBoards)
                 .playerRound(ThreadLocalRandom.current().nextBoolean() ? PlayerNumber.ONE : PlayerNumber.TWO)
                 .build();
 
@@ -59,5 +61,11 @@ public class GameService {
     private PlayerBoard createPlayerBoard(Player player) {
         var pitList = IntStream.range(0, SIZE_OF_PIT).mapToObj(i -> Pit.builder().index(i).amount(PIT_INIT_AMOUNT).build()).toList();
         return PlayerBoard.builder().player(player).pits(pitList).store(Store.builder().amount(STORE_INIT_AMOUNT).build()).build();
+    }
+
+    public BoardDTO move(Long gameId, Integer index) {
+
+        return null;
+
     }
 }

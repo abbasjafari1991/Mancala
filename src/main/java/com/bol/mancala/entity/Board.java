@@ -1,6 +1,8 @@
 package com.bol.mancala.entity;
 
 
+import com.bol.mancala.entity.enumeration.GameStatus;
+import com.bol.mancala.entity.enumeration.PlayerNumber;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +27,7 @@ public class Board {
     private PlayerNumber playerRound;
     @Version
     private Long version;
+    @Enumerated(EnumType.STRING)
+    private GameStatus status;
 
 }

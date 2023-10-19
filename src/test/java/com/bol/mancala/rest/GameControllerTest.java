@@ -1,6 +1,7 @@
 package com.bol.mancala.rest;
 
 import com.bol.mancala.entity.Player;
+import com.bol.mancala.entity.enumeration.GameStatus;
 import com.bol.mancala.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,7 @@ class GameControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.version").value(0))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(GameStatus.IN_PROGRESS.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.playerId").value(FIRST_PLAYER_ID))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.storeAmount").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits[0].amount").value(4))
