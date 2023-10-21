@@ -6,6 +6,7 @@ import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
+import com.bol.mancala.service.dto.CreateBoardDTO;
 import com.bol.mancala.service.dto.MoveRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,9 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,10 +42,9 @@ class GameServiceTest {
 
     @Test
     void shouldCreateBordWhenPlayerIdsAreExist() {
-        Mockito.when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        Mockito.when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
+        Mockito.when(playerRepository.findAllById(any())).thenReturn(List.of(FIRST_PLAYER, SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        BoardDTO boardDTO = gameService.createBoard(FIRST_PLAYER_ID, SECOND_PLAYER_ID);
+        BoardDTO boardDTO = gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build());
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
         assertThat(boardDTO).isNotNull().extracting(BoardDTO::getId).isEqualTo(BOARD_ID);
@@ -59,17 +57,16 @@ class GameServiceTest {
 
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdIsNotExist() {
-        Mockito.when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.empty());
-        Mockito.when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(Player.builder().id(SECOND_PLAYER_ID).name(SECOND_PLAYER_NAME).build()));
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, SECOND_PLAYER_ID));
-        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("FirstPlayer or secondPlayer is not valid");
+        Mockito.when(playerRepository.findAllById(List.of(FIRST_PLAYER_ID, SECOND_PLAYER_ID))).thenReturn(List.of(FIRST_PLAYER));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build()));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdsAreEquals() {
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, FIRST_PLAYER_ID));
-        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("First player and second player should be different.");
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build()));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
         verify(playerRepository, never()).findById(any());
     }

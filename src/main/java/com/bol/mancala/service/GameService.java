@@ -6,21 +6,17 @@ import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
+import com.bol.mancala.service.dto.CreateBoardDTO;
 import com.bol.mancala.service.dto.MoveRequestDTO;
 import com.bol.mancala.service.mapper.BoardMapper;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Service
 public class GameService {
@@ -40,25 +36,29 @@ public class GameService {
     }
 
     @Transactional
-    public BoardDTO createBoard(@NotNull String firstPlayerId, @NotNull String secondPlayerId) {
-        checkThePlayersAreNotSame(firstPlayerId, secondPlayerId);
-        Board board = createBoardWithDefaultParameters(firstPlayerId, secondPlayerId);
+    public BoardDTO createBoard(CreateBoardDTO createBoardDTO) {
+        Board board = createBoardWithDefaultParameters(createBoardDTO);
         board = boardRepository.save(board);
         return boardMapper.toDto(board);
     }
 
-    private Board createBoardWithDefaultParameters(String firstPlayerId, String secondPlayerId) {
-        Optional<Player> firstPlayer = playerRepository.findById(firstPlayerId);
-        Optional<Player> secondPlayer = playerRepository.findById(secondPlayerId);
-        if (firstPlayer.isEmpty() || secondPlayer.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "FirstPlayer or secondPlayer is not valid");
+    private Board createBoardWithDefaultParameters(CreateBoardDTO createBoardDTO) {
+        Collection<String> playerIds = createBoardDTO.getPlayers().values();
+        List<Player> players = playerRepository.findAllById(playerIds);
+        if (players.size() != playerIds.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Players are not valid");
         }
-        return createBoard(firstPlayer.get(), secondPlayer.get());
+        EnumMap<PlayerNumber, Player> playerNumberPlayer = new EnumMap<>(PlayerNumber.class);
+        createBoardDTO.getPlayers().forEach((playerNumber, playerId) -> {
+            Optional<Player> playerOptional = players.stream().filter(player -> player.getId().equals(playerId)).findAny();
+            playerOptional.ifPresent(player -> playerNumberPlayer.put(playerNumber, player));
+        });
+        return createBoard(playerNumberPlayer);
     }
 
-    private void checkThePlayersAreNotSame(String firstPlayerId, String secondPlayerId) {
-        if (firstPlayerId.equals(secondPlayerId))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First player and second player should be different.");
+    private void checkThePlayersAreNotSame(Collection<String> players) {
+        if (Set.of(players).size() != players.size())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Players should be different.");
     }
 
     @Transactional
@@ -107,17 +107,17 @@ public class GameService {
         return board.getPlayerBoards().get(playerRound).getPits().values().stream().allMatch(Pit::isEmpty);
     }
 
-    private Board createBoard(@NotNull Player firstPlayer, @NotNull Player secondPlayer) {
-        EnumMap<PlayerNumber, PlayerBoard> playerBoards = createPlayerBoards(firstPlayer, secondPlayer);
+    private Board createBoard(EnumMap<PlayerNumber, Player> playerNumberPlayer) {
+        EnumMap<PlayerNumber, PlayerBoard> playerBoards = createPlayerBoards(playerNumberPlayer);
         return Board.builder().status(GameStatus.IN_PROGRESS).playerBoards(playerBoards)
                 .playerRound(ThreadLocalRandom.current().nextBoolean() ? PlayerNumber.ONE : PlayerNumber.TWO)
                 .build();
     }
 
-    private EnumMap<PlayerNumber, PlayerBoard> createPlayerBoards(@NotNull Player firstPlayer, @NotNull Player secondPlayer) {
+    private EnumMap<PlayerNumber, PlayerBoard> createPlayerBoards(EnumMap<PlayerNumber, Player> playerNumberPlayer) {
         EnumMap<PlayerNumber, PlayerBoard> playerBoards = new EnumMap<>(PlayerNumber.class);
-        Stream.of(PlayerNumber.ONE, PlayerNumber.TWO).forEach(playerNumber -> {
-            PlayerBoard playerBoard = createPlayerBoard(playerNumber == PlayerNumber.ONE ? firstPlayer : secondPlayer);
+        playerNumberPlayer.forEach((playerNumber, player) -> {
+            PlayerBoard playerBoard = createPlayerBoard(player);
             playerBoards.put(playerNumber, playerBoard);
         });
         return playerBoards;

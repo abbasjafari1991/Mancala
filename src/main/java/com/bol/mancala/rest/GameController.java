@@ -2,10 +2,12 @@ package com.bol.mancala.rest;
 
 import com.bol.mancala.service.GameService;
 import com.bol.mancala.service.dto.BoardDTO;
+import com.bol.mancala.service.dto.CreateBoardDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,10 +21,8 @@ public class GameController {
     }
 
     @PostMapping("/create-board")
-    public ResponseEntity<BoardDTO> createBoard(
-            @RequestParam(name = "firstPlayerId") String firstPlayerId,
-            @RequestParam(name = "secondPlayerId") String secondPlayerId) {
-        BoardDTO board = gameService.createBoard(firstPlayerId, secondPlayerId);
+    public ResponseEntity<BoardDTO> createBoard(@Valid @RequestBody CreateBoardDTO createBoardDTO) {
+        BoardDTO board = gameService.createBoard(createBoardDTO);
         return ResponseEntity.ok(board);
     }
 
