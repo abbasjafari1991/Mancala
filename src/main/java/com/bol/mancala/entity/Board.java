@@ -3,31 +3,29 @@ package com.bol.mancala.entity;
 
 import com.bol.mancala.entity.enumeration.GameStatus;
 import com.bol.mancala.entity.enumeration.PlayerNumber;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
 
-@Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Document
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @OneToMany(cascade = CascadeType.ALL)
+    private String id;
     private Map<PlayerNumber, PlayerBoard> playerBoards;
-    @Enumerated(EnumType.STRING)
     private PlayerNumber playerRound;
     @Version
     private Long version;
-    @Enumerated(EnumType.STRING)
     private GameStatus status;
 
 }

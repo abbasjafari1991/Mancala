@@ -7,6 +7,6 @@ spring:
       authentication-database: admin
       username: root
       password: example
-      database: game-db
+      database: test-game-db
       port: 27017
       host: localhost

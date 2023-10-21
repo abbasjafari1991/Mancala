@@ -14,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class PlayerBoardDTO {
 
-    private Long playerId;
+    private String playerId;
     private Map<Integer, PitDTO> pits;
     private Integer storeAmount;
 

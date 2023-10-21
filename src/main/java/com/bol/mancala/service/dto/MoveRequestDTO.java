@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MoveRequestDTO {
-    @NotNull Long boardId;
+    @NotNull String boardId;
     @NotNull PlayerNumber playerNumber;
     @NotNull Integer index;
     @NotNull Long version;

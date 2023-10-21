@@ -25,7 +25,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable Long id) {
+    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable String id) {
         PlayerDTO player = playerService.findById(id);
         if (player != null) {
             return ResponseEntity.ok(player);
@@ -35,7 +35,7 @@ public class PlayerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable Long id, @RequestBody @Valid PlayerDTO updatedPlayer) {
+    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable String id, @RequestBody @Valid PlayerDTO updatedPlayer) {
         PlayerDTO player = playerService.findById(id);
         if (player != null) {
             updatedPlayer.setId(id); // Make sure the ID is set correctly
@@ -47,7 +47,7 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePlayer(@PathVariable String id) {
         PlayerDTO player = playerService.findById(id);
         if (player != null) {
             playerService.delete(id);

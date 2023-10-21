@@ -8,10 +8,10 @@ import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.BoardDTO;
 import com.bol.mancala.service.dto.MoveRequestDTO;
 import com.bol.mancala.service.mapper.BoardMapper;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.EnumMap;
@@ -40,14 +40,14 @@ public class GameService {
     }
 
     @Transactional
-    public BoardDTO createBoard(@NotNull Long firstPlayerId, @NotNull Long secondPlayerId) {
+    public BoardDTO createBoard(@NotNull String firstPlayerId, @NotNull String secondPlayerId) {
         checkThePlayersAreNotSame(firstPlayerId, secondPlayerId);
         Board board = createBoardWithDefaultParameters(firstPlayerId, secondPlayerId);
         board = boardRepository.save(board);
         return boardMapper.toDto(board);
     }
 
-    private Board createBoardWithDefaultParameters(Long firstPlayerId, Long secondPlayerId) {
+    private Board createBoardWithDefaultParameters(String firstPlayerId, String secondPlayerId) {
         Optional<Player> firstPlayer = playerRepository.findById(firstPlayerId);
         Optional<Player> secondPlayer = playerRepository.findById(secondPlayerId);
         if (firstPlayer.isEmpty() || secondPlayer.isEmpty()) {
@@ -56,7 +56,7 @@ public class GameService {
         return createBoard(firstPlayer.get(), secondPlayer.get());
     }
 
-    private void checkThePlayersAreNotSame(Long firstPlayerId, Long secondPlayerId) {
+    private void checkThePlayersAreNotSame(String firstPlayerId, String secondPlayerId) {
         if (firstPlayerId.equals(secondPlayerId))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First player and second player should be different.");
     }

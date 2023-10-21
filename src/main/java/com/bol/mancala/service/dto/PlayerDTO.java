@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class PlayerDTO {
-    private Long id;
+    private String id;
     private String name;
 }

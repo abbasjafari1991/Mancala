@@ -1,17 +1,30 @@
 package com.bol.mancala.entity;
 
-import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Transient;
 
-@Entity
+@Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class Store extends Pit {
-    public Store(Integer amount) {
-        super(null, amount);
+public class Store {
+    @NotNull
+    private Integer amount;
+
+    public void addAmountPlusOne() {
+        this.amount++;
+    }
+
+    @Transient
+    public boolean isEmpty() {
+        return amount == 0;
     }
 
     public void addToAmount(Integer add) {
-        super.setAmount(super.getAmount() + add);
-
+        amount += add;
     }
 }

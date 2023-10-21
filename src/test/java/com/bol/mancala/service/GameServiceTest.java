@@ -27,11 +27,11 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class GameServiceTest {
 
-    private static final Long FIRST_PLAYER_ID = 1L;
+    private static final String FIRST_PLAYER_ID = "1L";
     private static final String FIRST_PLAYER_NAME = "p1";
     public static final Player FIRST_PLAYER = Player.builder().id(FIRST_PLAYER_ID).name(FIRST_PLAYER_NAME).build();
-    private static final Long SECOND_PLAYER_ID = 2L;
-    private static final Long BOARD_ID = 12L;
+    private static final String SECOND_PLAYER_ID = "2L";
+    private static final String BOARD_ID = "12L";
     private static final String SECOND_PLAYER_NAME = "p2";
     public static final Player SECOND_PLAYER = Player.builder().id(SECOND_PLAYER_ID).name(SECOND_PLAYER_NAME).build();
     @Autowired
@@ -306,7 +306,7 @@ class GameServiceTest {
 
     }
 
-    private Board initBoard(long id, PlayerNumber playerRound) {
+    private Board initBoard(String id, PlayerNumber playerRound) {
         return Board.builder().id(id).playerRound(playerRound).version(0L).status(GameStatus.IN_PROGRESS).playerBoards(
                 Map.of(
                         PlayerNumber.ONE, PlayerBoard.builder().player(FIRST_PLAYER).store(new Store(0)).pits(getNewPitMaps()).build(),

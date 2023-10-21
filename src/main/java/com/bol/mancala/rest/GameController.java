@@ -20,8 +20,8 @@ public class GameController {
 
     @PostMapping("/create-board")
     public ResponseEntity<BoardDTO> createBoard(
-            @RequestParam(name = "firstPlayerId") Long firstPlayerId,
-            @RequestParam(name = "secondPlayerId") Long secondPlayerId) {
+            @RequestParam(name = "firstPlayerId") String firstPlayerId,
+            @RequestParam(name = "secondPlayerId") String secondPlayerId) {
         BoardDTO board = gameService.createBoard(firstPlayerId, secondPlayerId);
         return ResponseEntity.ok(board);
     }

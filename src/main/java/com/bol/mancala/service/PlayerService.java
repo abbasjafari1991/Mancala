@@ -25,12 +25,12 @@ public class PlayerService {
         return playerMapper.toDto(player);
     }
 
-    public PlayerDTO findById(Long id) {
+    public PlayerDTO findById(String id) {
         Optional<Player> optionalPlayer = playerRepository.findById(id);
         return optionalPlayer.map(playerMapper::toDto).orElse(null);
     }
 
-    public void delete(Long id) {
+    public void delete(String id) {
         playerRepository.deleteById(id);
     }
 }

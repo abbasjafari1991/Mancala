@@ -14,7 +14,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardDTO {
-    private Long id;
+    private String id;
     private Map<PlayerNumber, PlayerBoardDTO> playerBoards;
     private PlayerNumber playerRound;
     private Long version;

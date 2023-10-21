@@ -32,7 +32,7 @@ class PlayerServiceTest {
    @Test
    void testSavePlayer() {
       // Create a sample Player
-      Player player = Player.builder().id(1L).name("Alice").build();
+      Player player = Player.builder().id("1L").name("Alice").build();
       PlayerDTO playerDTO = PlayerDTO.builder().name("Alice").build();
 
       // Mock the repository's save method
@@ -48,23 +48,23 @@ class PlayerServiceTest {
    @Test
    void testFindPlayerById() {
       // Create a sample PlayerDTO
-      Player player = Player.builder().id(1L).name("Bob").build();
+      Player player = Player.builder().id("1L").name("Bob").build();
 
       // Mock the repository's findById method
-      when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
-      PlayerDTO foundPlayer = playerService.findById(1L);
+      when(playerRepository.findById("1L")).thenReturn(Optional.of(player));
+      PlayerDTO foundPlayer = playerService.findById("1L");
 
       // Assertions
       assertNotNull(foundPlayer);
-      assertEquals(1L, foundPlayer.getId());
+      assertEquals("1L", foundPlayer.getId());
       assertEquals("Bob", foundPlayer.getName());
    }
 
    @Test
    void testDeletePlayer() {
       // Mock the repository's deleteById method
-      Mockito.doNothing().when(playerRepository).deleteById(1L);
-      playerService.delete(1L);
-      verify(playerRepository).deleteById(1L);
+      Mockito.doNothing().when(playerRepository).deleteById("1L");
+      playerService.delete("1L");
+      verify(playerRepository).deleteById("1L");
    }
 }

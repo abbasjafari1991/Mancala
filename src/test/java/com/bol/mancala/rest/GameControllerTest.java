@@ -6,24 +6,27 @@ import com.bol.mancala.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
 class GameControllerTest {
 
-    private static final Long FIRST_PLAYER_ID = 1L;
+    private static Player FIRST_PLAYER_ID;
     private static final String FIRST_PLAYER_NAME = "p1";
-    private static final Long SECOND_PLAYER_ID = 2L;
+    private static Player SECOND_PLAYER_ID;
     private static final String SECOND_PLAYER_NAME = "p2";
     @Autowired
     private MockMvc mockMvc;
@@ -33,8 +36,8 @@ class GameControllerTest {
 
     @BeforeAll
     public void setup() {
-        playerRepository.save(Player.builder().name(FIRST_PLAYER_NAME).build());
-        playerRepository.save(Player.builder().name(SECOND_PLAYER_NAME).build());
+        FIRST_PLAYER_ID = playerRepository.save(Player.builder().name(FIRST_PLAYER_NAME).build());
+        SECOND_PLAYER_ID = playerRepository.save(Player.builder().name(SECOND_PLAYER_NAME).build());
 
     }
 
@@ -43,15 +46,15 @@ class GameControllerTest {
     void testCreateBoard() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/game/create-board")
-                        .param("firstPlayerId", FIRST_PLAYER_ID.toString())
-                        .param("secondPlayerId", SECOND_PLAYER_ID.toString())
+                        .param("firstPlayerId", FIRST_PLAYER_ID.getId())
+                        .param("secondPlayerId", SECOND_PLAYER_ID.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.version").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(GameStatus.IN_PROGRESS.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.playerId").value(FIRST_PLAYER_ID))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.playerId").value(FIRST_PLAYER_ID.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.storeAmount").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits.0.amount").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits.1.amount").value(4))
@@ -59,7 +62,7 @@ class GameControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits.3.amount").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits.4.amount").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.ONE.pits.5.amount").value(4))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.TWO.playerId").value(SECOND_PLAYER_ID))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.TWO.playerId").value(SECOND_PLAYER_ID.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.TWO.storeAmount").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.TWO.pits.0.amount").value(4))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.playerBoards.TWO.pits.1.amount").value(4))
@@ -74,8 +77,8 @@ class GameControllerTest {
     void testCreateBoardWithSamePlayerId() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/game/create-board")
-                        .param("firstPlayerId", FIRST_PLAYER_ID.toString())
-                        .param("secondPlayerId", FIRST_PLAYER_ID.toString())
+                        .param("firstPlayerId", FIRST_PLAYER_ID.getId())
+                        .param("secondPlayerId", FIRST_PLAYER_ID.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -84,19 +87,10 @@ class GameControllerTest {
     void testCreateBoardWithWrongPlayerId() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/v1/game/create-board")
-                        .param("firstPlayerId", FIRST_PLAYER_ID.toString())
+                        .param("firstPlayerId", FIRST_PLAYER_ID.getId())
                         .param("secondPlayerId", "500")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Test
-    void testCreateBoardWithTextPlayerId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/game/create-board")
-                        .param("firstPlayerId", FIRST_PLAYER_ID.toString())
-                        .param("secondPlayerId", "asd")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
 }
