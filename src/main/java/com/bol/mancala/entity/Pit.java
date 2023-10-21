@@ -1,9 +1,7 @@
 package com.bol.mancala.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +17,19 @@ public class Pit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
     private Integer amount;
 
+    public void addAmountPlusOne() {
+        this.amount++;
+    }
+
+    @Transient
+    public boolean isEmpty() {
+        return amount == 0;
+    }
+
+    public void clear() {
+        this.amount = 0;
+    }
 }
