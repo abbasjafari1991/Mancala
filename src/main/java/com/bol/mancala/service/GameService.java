@@ -143,7 +143,7 @@ public class GameService {
         Pit selectedPit = playerBoard.getPits().get(index);
         Integer amount = selectedPit.getAmount();
         if (amount.equals(PIT_EMPTY_AMOUNT))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "selected pit can not be null");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "selected pit can not be empty");
         selectedPit.setAmount(PIT_EMPTY_AMOUNT);
         return amount;
     }
@@ -158,7 +158,7 @@ public class GameService {
         PlayerBoard playerBoard = playerBoards.get(currentBoardPlayerNumber);
         while (amount > PIT_EMPTY_AMOUNT) {
             if (index > SIZE_OF_PIT)
-                throw new RuntimeException("index it is not valid");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "index it is not valid");
             if (index == SIZE_OF_PIT) {
                 if (starterPlayerNumber == currentBoardPlayerNumber) {
                     playerBoard.getStore().addAmountPlusOne();

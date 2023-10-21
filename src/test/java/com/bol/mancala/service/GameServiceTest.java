@@ -76,8 +76,6 @@ class GameServiceTest {
     void moveShouldClearHomeAddAddToNextHome_PlayerSide() {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(0).build();
 
@@ -97,8 +95,6 @@ class GameServiceTest {
     void moveShouldClearHomeAddAddToNextHomeOppositeSideAndAddToStore() {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
@@ -122,8 +118,6 @@ class GameServiceTest {
         Board initBoard = initBoard(BOARD_ID, playerRound);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(8);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
@@ -145,8 +139,6 @@ class GameServiceTest {
     void moveWithNextRoundRewardShouldDoNotChangePlayerRound() {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(2).build();
 
@@ -170,8 +162,6 @@ class GameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
 
@@ -195,8 +185,6 @@ class GameServiceTest {
         initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(1).setAmount(0);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(3);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
-        when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.of(FIRST_PLAYER));
-        when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
@@ -214,7 +202,54 @@ class GameServiceTest {
     }
 
 
-    //todo Test Validation
+    @Test
+    void shouldThrowExceptionIfDoNotFindBoard() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.empty());
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull();
+        verify(boardRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowExceptionIfTheGameIsFinish() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(Board.builder().status(GameStatus.FINISH).build()));
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull();
+        verify(boardRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowExceptionIfTheHomeIsEmpty() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        Board initBoard = initBoard(BOARD_ID, playerRound);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull();
+        verify(boardRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowExceptionIfTheHomeIsIsAnotherPlayerRound() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        Board initBoard = initBoard(BOARD_ID, playerRound.oppositeSide());
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull();
+        verify(boardRepository, never()).save(any());
+
+    }
 
     private Board initBoard(long id, PlayerNumber playerRound) {
         return Board.builder().id(id).playerRound(playerRound).version(0L).status(GameStatus.IN_PROGRESS).playerBoards(
