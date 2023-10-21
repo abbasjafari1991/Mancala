@@ -52,6 +52,7 @@ class GameServiceTest {
         assertThat(boardDTO).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(0L);
         Board board = boardArgumentCaptor.getValue();
         verifyBoard(board, GameStatus.IN_PROGRESS, getNewPitMaps(), getNewPitMaps(), 0, 0);
+        assertThat(board).extracting(Board::getPlayerRound).isNotNull();
 
     }
 
@@ -134,6 +135,32 @@ class GameServiceTest {
         assertThat(board).extracting(Board::getPlayerRound).isEqualTo(playerRound.next());
     }
 
+    @Test
+    void gameShouldBeFinishIfSideIsEmpty() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        Board initBoard = initBoard(BOARD_ID, playerRound);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(0).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(1).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(2).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(3).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(1);
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+
+        BoardDTO boardDTO = gameService.move(moveRequest);
+
+        ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
+        verify(boardRepository).save(boardArgumentCaptor.capture());
+        assertThat(boardDTO).isNotNull().extracting(BoardDTO::getId).isEqualTo(BOARD_ID);
+        assertThat(boardDTO).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(0L);
+        Board board = boardArgumentCaptor.getValue();
+        Map<Integer, Pit> emptyPits = Map.of(0, Pit.builder().amount(0).build(), 1, Pit.builder().amount(0).build(), 2, Pit.builder().amount(0).build(), 3, Pit.builder().amount(0).build(), 4, Pit.builder().amount(0).build(), 5, Pit.builder().amount(0).build());
+        verifyBoard(board, GameStatus.FINISH, emptyPits, emptyPits, 25, 0);
+        assertThat(board).extracting(Board::getPlayerRound).isNull();
+    }
+
 
     @Test
     void moveWithNextRoundRewardShouldDoNotChangePlayerRound() {
@@ -156,7 +183,7 @@ class GameServiceTest {
     }
 
     @Test
-    void moveShouldTakeOppositePitRewardWhenLastStoneIsInEmptyHome() {
+    void moveShouldTakeOppositePitRewardWhenLastStoneIsInEmptyHomeAndOppositeIsNotEmpty() {
         PlayerNumber playerRound = PlayerNumber.ONE;
         Board initBoard = initBoard(BOARD_ID, playerRound);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
@@ -175,6 +202,30 @@ class GameServiceTest {
         Map<Integer, Pit> boardOnePit = Map.of(0, Pit.builder().amount(4).build(), 1, Pit.builder().amount(4).build(), 2, Pit.builder().amount(4).build(), 3, Pit.builder().amount(4).build(), 4, Pit.builder().amount(0).build(), 5, Pit.builder().amount(0).build());
         Map<Integer, Pit> boardTwoPit = Map.of(0, Pit.builder().amount(0).build(), 1, Pit.builder().amount(4).build(), 2, Pit.builder().amount(4).build(), 3, Pit.builder().amount(4).build(), 4, Pit.builder().amount(4).build(), 5, Pit.builder().amount(4).build());
         verifyBoard(board, GameStatus.IN_PROGRESS, boardOnePit, boardTwoPit, 5, 0);
+        assertThat(board).extracting(Board::getPlayerRound).isEqualTo(playerRound.next());
+    }
+
+    @Test
+    void moveShouldNotTakeOppositePitRewardWhenLastStoneIsInEmptyHomeAndOppositeIsEmpty() {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        Board initBoard = initBoard(BOARD_ID, playerRound);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
+        initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
+        initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(0).setAmount(0);
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
+        Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+
+        BoardDTO boardDTO = gameService.move(moveRequest);
+
+        ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
+        verify(boardRepository).save(boardArgumentCaptor.capture());
+        assertThat(boardDTO).isNotNull().extracting(BoardDTO::getId).isEqualTo(BOARD_ID);
+        assertThat(boardDTO).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(0L);
+        Board board = boardArgumentCaptor.getValue();
+        Map<Integer, Pit> boardOnePit = Map.of(0, Pit.builder().amount(4).build(), 1, Pit.builder().amount(4).build(), 2, Pit.builder().amount(4).build(), 3, Pit.builder().amount(4).build(), 4, Pit.builder().amount(0).build(), 5, Pit.builder().amount(1).build());
+        Map<Integer, Pit> boardTwoPit = Map.of(0, Pit.builder().amount(0).build(), 1, Pit.builder().amount(4).build(), 2, Pit.builder().amount(4).build(), 3, Pit.builder().amount(4).build(), 4, Pit.builder().amount(4).build(), 5, Pit.builder().amount(4).build());
+        verifyBoard(board, GameStatus.IN_PROGRESS, boardOnePit, boardTwoPit, 0, 0);
         assertThat(board).extracting(Board::getPlayerRound).isEqualTo(playerRound.next());
     }
 
@@ -268,7 +319,6 @@ class GameServiceTest {
     }
 
     private void verifyBoard(Board board, GameStatus gameStatus, Map<Integer, Pit> boardOnePits, Map<Integer, Pit> boardTwoPits, int storeOneStone, int storeTwoStone) {
-        assertThat(board).extracting(Board::getPlayerRound).isNotNull();
         assertThat(board).extracting(Board::getStatus).isEqualTo(gameStatus);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().keySet()).isNotNull().extracting(Set::size).isEqualTo(2);
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE)).isNotNull();

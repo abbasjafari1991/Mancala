@@ -83,6 +83,7 @@ public class GameService {
         board.setPlayerRound(nextPlayerNumber);
         if (itCanBeFinish(board, playerRound)) {
             finishGame(board, playerRound);
+            board.setPlayerRound(null);
         }
         board.setVersion(moveRequestDTO.getVersion());
     }
@@ -158,7 +159,7 @@ public class GameService {
         PlayerBoard playerBoard = playerBoards.get(currentBoardPlayerNumber);
         while (amount > PIT_EMPTY_AMOUNT) {
             if (index > SIZE_OF_PIT)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "index it is not valid");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Index it is not valid");
             if (index == SIZE_OF_PIT) {
                 if (starterPlayerNumber == currentBoardPlayerNumber) {
                     playerBoard.getStore().addAmountPlusOne();
