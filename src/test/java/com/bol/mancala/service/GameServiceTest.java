@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -60,15 +61,15 @@ class GameServiceTest {
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdIsNotExist() {
         Mockito.when(playerRepository.findById(FIRST_PLAYER_ID)).thenReturn(Optional.empty());
         Mockito.when(playerRepository.findById(SECOND_PLAYER_ID)).thenReturn(Optional.of(Player.builder().id(SECOND_PLAYER_ID).name(SECOND_PLAYER_NAME).build()));
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, SECOND_PLAYER_ID));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, SECOND_PLAYER_ID));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("FirstPlayer or secondPlayer is not valid");
         verify(boardRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdsAreEquals() {
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, FIRST_PLAYER_ID));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(FIRST_PLAYER_ID, FIRST_PLAYER_ID));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("First player and second player should be different.");
         verify(boardRepository, never()).save(any());
         verify(playerRepository, never()).findById(any());
     }
@@ -259,8 +260,9 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.empty());
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Board not valid");
+
         verify(boardRepository, never()).save(any());
     }
 
@@ -270,8 +272,9 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(Board.builder().status(GameStatus.FINISH).build()));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Game is already finished");
+
         verify(boardRepository, never()).save(any());
     }
 
@@ -283,8 +286,9 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("selected pit can not be empty");
+
         verify(boardRepository, never()).save(any());
     }
 
@@ -296,8 +300,8 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
-        Throwable exception = assertThrows(RuntimeException.class, () -> gameService.move(moveRequest));
-        assertThat(exception).isNotNull();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("This another player round!");
         verify(boardRepository, never()).save(any());
 
     }
