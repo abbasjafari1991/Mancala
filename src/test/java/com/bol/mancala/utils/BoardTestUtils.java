@@ -50,10 +50,10 @@ public interface BoardTestUtils {
         assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.TWO).getStore()).isNotNull().extracting(Store::getAmount).isEqualTo(storeTwoStone);
     }
 
-    static void verifyBoardDTO(Board initBoard, BoardDTO board, PlayerNumber playerRound, GameStatus gameStatus, Map<Integer, PitDTO> boardOnePits, Map<Integer, PitDTO> boardTwoPits, int storeOneStone, int storeTwoStone) {
+    static void verifyBoardDTO(Board initBoard, BoardDTO board, PlayerNumber playerRound, GameStatus gameStatus, Map<Integer, PitDTO> boardOnePits, Map<Integer, PitDTO> boardTwoPits, int storeOneStone, int storeTwoStone, long version) {
 
         assertThat(board).isNotNull().extracting(BoardDTO::getId).isEqualTo(initBoard.getId());
-        assertThat(board).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(1L);
+        assertThat(board).extracting(BoardDTO::getVersion).isNotNull().isEqualTo(version);
         assertThat(board).extracting(BoardDTO::getPlayerRound).isEqualTo(playerRound);
 
         assertThat(board).extracting(BoardDTO::getStatus).isEqualTo(gameStatus);

@@ -192,4 +192,8 @@ public class GameService {
         return starterPlayerNumber.next();
     }
 
+    @Transactional(readOnly = true)
+    public BoardDTO findById(String id) {
+        return boardRepository.findById(id).map(boardMapper::toDto).orElse(null);
+    }
 }

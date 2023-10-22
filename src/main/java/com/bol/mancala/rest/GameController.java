@@ -30,4 +30,14 @@ public class GameController {
         return ResponseEntity.ok(board);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardDTO> getBoardById(@PathVariable String id) {
+        BoardDTO boardDTO = gameService.findById(id);
+        if (boardDTO != null) {
+            return ResponseEntity.ok(boardDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

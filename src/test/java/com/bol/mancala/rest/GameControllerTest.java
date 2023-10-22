@@ -124,6 +124,31 @@ class GameControllerTest {
 
 
     @Test
+    void testFindGame() throws Exception {
+        PlayerNumber playerRound = PlayerNumber.ONE;
+        Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
+        initBoard = boardRepository.save(initBoard);
+
+        BoardDTO boardDTO = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
+                        .get("/v1/game/" + initBoard.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(), BoardDTO.class);
+
+        verifyBoardDTO(initBoard, boardDTO, playerRound, GameStatus.IN_PROGRESS, getNewPitDTOMaps(), getNewPitDTOMaps(), 0, 0, 0L);
+    }
+
+    @Test
+    void testFindGameNotFind() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/v1/game/" + "Invalid_Id")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+    }
+
+    @Test
     void moveShouldClearHomeAddAddToNextHome_PlayerSide() throws Exception {
         PlayerNumber playerRound = PlayerNumber.ONE;
         Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
@@ -133,7 +158,7 @@ class GameControllerTest {
 
         BoardDTO boardDTO = move(moveRequest);
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(0).build(), 1, PitDTO.builder().amount(5).build(), 2, PitDTO.builder().amount(5).build(), 3, PitDTO.builder().amount(5).build(), 4, PitDTO.builder().amount(5).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, getNewPitDTOMaps(), 0, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, getNewPitDTOMaps(), 0, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -156,7 +181,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(0).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(5).build(), 1, PitDTO.builder().amount(5).build(), 2, PitDTO.builder().amount(5).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -183,7 +208,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(5).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(0).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(5).build(), 1, PitDTO.builder().amount(5).build(), 2, PitDTO.builder().amount(5).build(), 3, PitDTO.builder().amount(5).build(), 4, PitDTO.builder().amount(5).build(), 5, PitDTO.builder().amount(5).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -212,7 +237,7 @@ class GameControllerTest {
         BoardDTO boardDTO = move(moveRequest);
 
         Map<Integer, PitDTO> emptyPitsPitDTOMap = Map.of(0, PitDTO.builder().amount(0).build(), 1, PitDTO.builder().amount(0).build(), 2, PitDTO.builder().amount(0).build(), 3, PitDTO.builder().amount(0).build(), 4, PitDTO.builder().amount(0).build(), 5, PitDTO.builder().amount(0).build());
-        verifyBoardDTO(initBoard, boardDTO, null, GameStatus.FINISH, emptyPitsPitDTOMap, emptyPitsPitDTOMap, 25, 0);
+        verifyBoardDTO(initBoard, boardDTO, null, GameStatus.FINISH, emptyPitsPitDTOMap, emptyPitsPitDTOMap, 25, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -234,7 +259,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(0).build(), 3, PitDTO.builder().amount(5).build(), 4, PitDTO.builder().amount(5).build(), 5, PitDTO.builder().amount(5).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound, GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound, GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -258,7 +283,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(0).build(), 5, PitDTO.builder().amount(0).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(0).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 5, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 5, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -284,7 +309,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(0).build(), 5, PitDTO.builder().amount(1).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(0).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 0, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 0, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
@@ -308,7 +333,7 @@ class GameControllerTest {
 
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(4).build(), 1, PitDTO.builder().amount(4).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(0).build());
         Map<Integer, PitDTO> boardTwoPitDTOMap = Map.of(0, PitDTO.builder().amount(5).build(), 1, PitDTO.builder().amount(1).build(), 2, PitDTO.builder().amount(4).build(), 3, PitDTO.builder().amount(4).build(), 4, PitDTO.builder().amount(4).build(), 5, PitDTO.builder().amount(4).build());
-        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0);
+        verifyBoardDTO(initBoard, boardDTO, playerRound.next(), GameStatus.IN_PROGRESS, boardOnePitDTOMap, boardTwoPitDTOMap, 1, 0, 1L);
 
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
         assertThat(boardOptional).isPresent();
