@@ -64,14 +64,16 @@ class GameServiceTest {
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdIsNotExist() {
         Mockito.when(playerRepository.findAllById(List.of(FIRST_PLAYER_ID, SECOND_PLAYER_ID))).thenReturn(List.of(FIRST_PLAYER));
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build()));
+        CreateBoardDTO board = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(board));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdsAreEquals() {
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build()));
+        CreateBoardDTO board = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(board));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
         verify(playerRepository, never()).findById(any());
