@@ -143,11 +143,11 @@ public class MancalaGameServiceImpl implements MancalaGameService {
         }
     }
 
-    private Integer takePitAmount(AtomicInteger index, Board board, PlayerNumber playerRound) {
+    private int takePitAmount(AtomicInteger index, Board board, PlayerNumber playerRound) {
         PlayerBoard playerBoard = board.getPlayerBoards().get(playerRound);
         Pit selectedPit = playerBoard.getPits().get(index.get());
-        Integer amount = selectedPit.getAmount();
-        if (amount.equals(PIT_EMPTY_AMOUNT))
+        int amount = selectedPit.getAmount();
+        if (amount == PIT_EMPTY_AMOUNT)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "selected pit can not be empty");
         selectedPit.setAmount(PIT_EMPTY_AMOUNT);
         return amount;
