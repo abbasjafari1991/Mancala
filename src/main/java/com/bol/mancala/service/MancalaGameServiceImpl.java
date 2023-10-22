@@ -79,8 +79,8 @@ public class MancalaGameServiceImpl implements MancalaGameService {
 
     private void play(MoveRequestDTO moveRequestDTO, Board board) {
         PlayerNumber playerRound = board.getPlayerRound();
+        checkRoundOfPlayer(moveRequestDTO.getPlayerId(), board);
         AtomicInteger index = new AtomicInteger(moveRequestDTO.getIndex());
-        checkRoundOfPlayer(moveRequestDTO.getPlayerNumber(), playerRound);
         AtomicInteger amount = new AtomicInteger(takePitAmount(index, board, playerRound));
         index.incrementAndGet();
         PlayerNumber nextPlayerNumber = moveAmountToNextPitsAndStore(index, board.getPlayerBoards(), playerRound, playerRound, amount);
@@ -153,8 +153,10 @@ public class MancalaGameServiceImpl implements MancalaGameService {
         return amount;
     }
 
-    private void checkRoundOfPlayer(PlayerNumber playerNumber, PlayerNumber playerRound) {
-        if (playerRound != playerNumber) {
+    private void checkRoundOfPlayer(String playerId, Board board) {
+        PlayerNumber playerRound = board.getPlayerRound();
+        Player player = board.getPlayerBoards().get(playerRound).getPlayer();
+        if (!playerId.equals(player.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This another player round!");
         }
     }

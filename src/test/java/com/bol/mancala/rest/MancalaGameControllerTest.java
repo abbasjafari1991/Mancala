@@ -155,7 +155,7 @@ class MancalaGameControllerTest {
         Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard = boardRepository.save(initBoard);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(0).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(0).build();
 
         BoardDTO boardDTO = move(moveRequest);
         Map<Integer, PitDTO> boardOnePitDTOMap = Map.of(0, PitDTO.builder().amount(0).build(), 1, PitDTO.builder().amount(5).build(), 2, PitDTO.builder().amount(5).build(), 3, PitDTO.builder().amount(5).build(), 4, PitDTO.builder().amount(5).build(), 5, PitDTO.builder().amount(4).build());
@@ -176,7 +176,7 @@ class MancalaGameControllerTest {
         Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard = boardRepository.save(initBoard);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(5).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -202,7 +202,7 @@ class MancalaGameControllerTest {
 
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(8);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(5).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -233,7 +233,7 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(1);
         initBoard = boardRepository.save(initBoard);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(5).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -253,7 +253,7 @@ class MancalaGameControllerTest {
         PlayerNumber playerRound = PlayerNumber.ONE;
         Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard = boardRepository.save(initBoard);
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(2).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(2).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -277,7 +277,7 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         initBoard = boardRepository.save(initBoard);
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(4).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -303,7 +303,7 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(0).setAmount(0);
         initBoard = boardRepository.save(initBoard);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(4).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -328,7 +328,7 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(3);
         initBoard = boardRepository.save(initBoard);
 
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(5).build();
 
         BoardDTO boardDTO = move(moveRequest);
 
@@ -346,8 +346,7 @@ class MancalaGameControllerTest {
 
     @Test
     void shouldThrowExceptionIfDoNotFindBoard() throws Exception {
-        PlayerNumber playerRound = PlayerNumber.ONE;
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId("Invalid_Id").playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId("Invalid_Id").playerId(FIRST_PLAYER.getId()).version(0L).index(4).build();
         badRequestMove(moveRequest, "Board not valid");
     }
 
@@ -358,7 +357,7 @@ class MancalaGameControllerTest {
         Board initBoard = initBoard(null, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.setStatus(GameStatus.FINISH);
         initBoard = boardRepository.save(initBoard);
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(4).build();
         badRequestMove(moveRequest, "Game is already finished");
     }
 
@@ -372,7 +371,7 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
 
         initBoard = boardRepository.save(initBoard);
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(FIRST_PLAYER.getId()).version(0L).index(5).build();
         badRequestMove(moveRequest, "selected pit can not be empty");
 
     }
@@ -386,20 +385,19 @@ class MancalaGameControllerTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
 
         initBoard = boardRepository.save(initBoard);
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerNumber(playerRound.oppositeSide()).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(initBoard.getId()).playerId(SECOND_PLAYER.getId()).version(0L).index(5).build();
         badRequestMove(moveRequest, "This another player round!");
     }
 
     private BoardDTO move(MoveRequestDTO moveRequest) throws Exception {
         String requestBody = objectMapper.writeValueAsString(moveRequest);
-        BoardDTO boardDTO = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
+        return objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
                         .put(GAME_BOARD_URL + "move")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString(), BoardDTO.class);
-        return boardDTO;
     }
 
     private void badRequestMove(MoveRequestDTO moveRequest, String errorMessage) throws Exception {

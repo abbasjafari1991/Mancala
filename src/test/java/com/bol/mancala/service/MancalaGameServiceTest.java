@@ -84,7 +84,7 @@ class MancalaGameServiceTest {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(0).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(0).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -103,7 +103,7 @@ class MancalaGameServiceTest {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -126,7 +126,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(8);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -153,7 +153,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(1);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -173,7 +173,7 @@ class MancalaGameServiceTest {
         PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(2).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(2).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -196,7 +196,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(4).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -220,7 +220,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(0).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(4).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -243,7 +243,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(3);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
 
         BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
@@ -261,10 +261,9 @@ class MancalaGameServiceTest {
 
     @Test
     void shouldThrowExceptionIfDoNotFindBoard() {
-        PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.empty());
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(4).build();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Board not valid");
 
@@ -273,10 +272,9 @@ class MancalaGameServiceTest {
 
     @Test
     void shouldThrowExceptionIfTheGameIsFinish() {
-        PlayerNumber playerRound = PlayerNumber.ONE;
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(Board.builder().status(GameStatus.FINISH).build()));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(4).build();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Game is already finished");
 
@@ -290,7 +288,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("selected pit can not be empty");
 
@@ -304,7 +302,7 @@ class MancalaGameServiceTest {
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
+        MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerId(FIRST_PLAYER_ID).version(0L).index(5).build();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("This another player round!");
         verify(boardRepository, never()).save(any());
