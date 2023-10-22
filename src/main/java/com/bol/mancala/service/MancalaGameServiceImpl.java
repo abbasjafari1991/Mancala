@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @Service
-public class GameService {
-    private final Logger logger = LoggerFactory.getLogger(GameService.class);
+public class MancalaGameServiceImpl implements MancalaGameService {
+    private final Logger logger = LoggerFactory.getLogger(MancalaGameServiceImpl.class);
 
     private static final int PIT_INIT_AMOUNT = 4;
     private static final int PIT_EMPTY_AMOUNT = 0;
@@ -33,7 +33,7 @@ public class GameService {
     private final BoardRepository boardRepository;
     private final BoardMapper boardMapper;
 
-    public GameService(PlayerRepository playerRepository, BoardRepository boardRepository, BoardMapper boardMapper) {
+    public MancalaGameServiceImpl(PlayerRepository playerRepository, BoardRepository boardRepository, BoardMapper boardMapper) {
         this.playerRepository = playerRepository;
         this.boardRepository = boardRepository;
         this.boardMapper = boardMapper;

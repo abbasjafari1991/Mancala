@@ -36,9 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class GameControllerTest {
+class MancalaGameControllerTest {
 
-    public static final String GAME_BOARD_URL = "/v1/game/board/";
+    public static final String GAME_BOARD_URL = "/v1/game/mancala/";
     private static Player FIRST_PLAYER;
     private static final String FIRST_PLAYER_NAME = "p1";
     private static Player SECOND_PLAYER;
@@ -393,7 +393,7 @@ class GameControllerTest {
     private BoardDTO move(MoveRequestDTO moveRequest) throws Exception {
         String requestBody = objectMapper.writeValueAsString(moveRequest);
         BoardDTO boardDTO = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/game/board/move")
+                        .put(GAME_BOARD_URL + "move")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -405,7 +405,7 @@ class GameControllerTest {
     private void badRequestMove(MoveRequestDTO moveRequest, String errorMessage) throws Exception {
         String requestBody = objectMapper.writeValueAsString(moveRequest);
         String message = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/game/board/move")
+                        .put(GAME_BOARD_URL + "move")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())

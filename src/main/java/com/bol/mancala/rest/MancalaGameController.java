@@ -1,6 +1,6 @@
 package com.bol.mancala.rest;
 
-import com.bol.mancala.service.GameService;
+import com.bol.mancala.service.MancalaGameService;
 import com.bol.mancala.service.dto.BoardDTO;
 import com.bol.mancala.service.dto.CreateBoardDTO;
 import com.bol.mancala.service.dto.MoveRequestDTO;
@@ -11,19 +11,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/game/board")
-public class GameController {
-    private final Logger logger = LoggerFactory.getLogger(GameController.class);
-    private final GameService gameService;
+@RequestMapping("/v1/game/mancala")
+public class MancalaGameController {
+    private final Logger logger = LoggerFactory.getLogger(MancalaGameController.class);
+    private final MancalaGameService mancalaGameService;
 
-    public GameController(GameService gameService) {
-        this.gameService = gameService;
+    public MancalaGameController(MancalaGameService mancalaGameService) {
+        this.mancalaGameService = mancalaGameService;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BoardDTO> getBoardById(@PathVariable String id) {
         logger.info("Received a request to retrieve a board by ID: {}", id);
-        BoardDTO boardDTO = gameService.findById(id);
+        BoardDTO boardDTO = mancalaGameService.findById(id);
         if (boardDTO != null) {
             logger.info("Board retrieved successfully.");
             return ResponseEntity.ok(boardDTO);
@@ -36,7 +36,7 @@ public class GameController {
     @PostMapping("/")
     public ResponseEntity<BoardDTO> createBoard(@Valid @RequestBody CreateBoardDTO createBoardDTO) {
         logger.info("Received a request to create a board.");
-        BoardDTO board = gameService.createBoard(createBoardDTO);
+        BoardDTO board = mancalaGameService.createBoard(createBoardDTO);
         logger.info("Board created successfully.");
         return ResponseEntity.ok(board);
     }
@@ -44,7 +44,7 @@ public class GameController {
     @PutMapping("/move")
     public ResponseEntity<BoardDTO> move(@Valid @RequestBody MoveRequestDTO moveRequestDTO) {
         logger.info("Received a move request.");
-        BoardDTO board = gameService.move(moveRequestDTO);
+        BoardDTO board = mancalaGameService.move(moveRequestDTO);
         logger.info("Move request processed.");
         return ResponseEntity.ok(board);
     }

@@ -30,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class GameServiceTest {
+class MancalaGameServiceTest {
 
     private static final String FIRST_PLAYER_ID = "1L";
     private static final String FIRST_PLAYER_NAME = "p1";
@@ -40,7 +40,7 @@ class GameServiceTest {
     private static final String SECOND_PLAYER_NAME = "p2";
     public static final Player SECOND_PLAYER = Player.builder().id(SECOND_PLAYER_ID).name(SECOND_PLAYER_NAME).build();
     @Autowired
-    GameService gameService;
+    MancalaGameService mancalaGameService;
     @MockBean
     PlayerRepository playerRepository;
     @MockBean
@@ -50,7 +50,7 @@ class GameServiceTest {
     void shouldCreateBordWhenPlayerIdsAreExist() {
         Mockito.when(playerRepository.findAllById(any())).thenReturn(List.of(FIRST_PLAYER, SECOND_PLAYER));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
-        BoardDTO boardDTO = gameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build());
+        BoardDTO boardDTO = mancalaGameService.createBoard(CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build());
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
         assertThat(boardDTO).isNotNull().extracting(BoardDTO::getId).isEqualTo(BOARD_ID);
@@ -65,7 +65,7 @@ class GameServiceTest {
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdIsNotExist() {
         Mockito.when(playerRepository.findAllById(List.of(FIRST_PLAYER_ID, SECOND_PLAYER_ID))).thenReturn(List.of(FIRST_PLAYER));
         CreateBoardDTO board = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(board));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.createBoard(board));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
     }
@@ -73,7 +73,7 @@ class GameServiceTest {
     @Test
     void shouldThrowsExceptionCreateBordWhenFirstPlayerIdsAreEquals() {
         CreateBoardDTO board = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER_ID, PlayerNumber.TWO, SECOND_PLAYER_ID))).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.createBoard(board));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.createBoard(board));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Players are not valid");
         verify(boardRepository, never()).save(any());
         verify(playerRepository, never()).findById(any());
@@ -86,7 +86,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(0).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -105,7 +105,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -128,7 +128,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -155,7 +155,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -175,7 +175,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(2).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -198,7 +198,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -222,7 +222,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -245,7 +245,7 @@ class GameServiceTest {
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
-        BoardDTO boardDTO = gameService.move(moveRequest);
+        BoardDTO boardDTO = mancalaGameService.move(moveRequest);
 
         ArgumentCaptor<Board> boardArgumentCaptor = ArgumentCaptor.forClass(Board.class);
         verify(boardRepository).save(boardArgumentCaptor.capture());
@@ -265,7 +265,7 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.empty());
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Board not valid");
 
         verify(boardRepository, never()).save(any());
@@ -277,7 +277,7 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(Board.builder().status(GameStatus.FINISH).build()));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(4).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("Game is already finished");
 
         verify(boardRepository, never()).save(any());
@@ -291,7 +291,7 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("selected pit can not be empty");
 
         verify(boardRepository, never()).save(any());
@@ -305,7 +305,7 @@ class GameServiceTest {
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> gameService.move(moveRequest));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> mancalaGameService.move(moveRequest));
         assertThat(exception).isNotNull().extracting(ResponseStatusException::getReason).isEqualTo("This another player round!");
         verify(boardRepository, never()).save(any());
 
