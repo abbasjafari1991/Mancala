@@ -56,7 +56,19 @@ mvn spring-boot:run
 ## API Documentation
 
 You can interact with the Mancala game through REST APIs. Full API documentation is available
-at `http://localhost:8080/swagger-ui.html` in dev environment.
+at `http://localhost:8080/swagger-ui.html` in development environment.
 
 odify this README to suit your specific project and provide more details as needed. Additionally, include any special
 instructions or dependencies required to run your two-player Mancala game with Spring Boot, MongoDB, and REST API.
+
+## Things to Do
+
+This section is a task list for future project improvements and enhancements. It can serve as a roadmap for the
+project's development.
+
+- config Production profile and add Service Discovery
+- Add cash management features.
+- Implement custom exception handling.
+- Expand the test coverage, especially for player-related functionality.
+- Consider creating interfaces for services to allow for other implementations.
+- Integrate Spring Security for enhanced security features.
