@@ -68,7 +68,7 @@ project's development.
 
 - config Production profile and add Service Discovery
 - Add cash management features.
-- Implement custom exception handling.
+- Implement custom exception handling And Controller Adviser.
 - Expand the test coverage, especially for player-related functionality.
 - Consider creating interfaces for services to allow for other implementations.
 - Integrate Spring Security for enhanced security features.
