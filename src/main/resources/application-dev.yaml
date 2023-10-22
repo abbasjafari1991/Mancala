@@ -1,6 +1,9 @@
 eureka:
   client:
     enabled: false
+springdoc:
+  api-docs:
+    enabled: true
 spring:
   data:
     mongodb:
