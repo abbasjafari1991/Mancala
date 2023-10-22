@@ -4,9 +4,10 @@ import com.bol.mancala.entity.Player;
 import com.bol.mancala.repository.PlayerRepository;
 import com.bol.mancala.service.dto.PlayerDTO;
 import com.bol.mancala.service.mapper.PlayerMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,7 +36,7 @@ public class PlayerService {
         playerRepository.deleteById(id);
     }
 
-    public List<PlayerDTO> findAll() {
-        return playerMapper.toDto(playerRepository.findAll());
+    public Page<PlayerDTO> findAll(Pageable pageable) {
+        return playerRepository.findAll(pageable).map(playerMapper::toDto);
     }
 }
