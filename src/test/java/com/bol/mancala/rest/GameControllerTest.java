@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GameControllerTest {
 
+    public static final String GAME_BOARD_URL = "/v1/game/board/";
     private static Player FIRST_PLAYER;
     private static final String FIRST_PLAYER_NAME = "p1";
     private static Player SECOND_PLAYER;
@@ -65,7 +66,7 @@ class GameControllerTest {
         CreateBoardDTO createBoardDTO = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER.getId(), PlayerNumber.TWO, SECOND_PLAYER.getId()))).build();
         String requestBody = objectMapper.writeValueAsString(createBoardDTO);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/game/create-board")
+                        .post(GAME_BOARD_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -97,7 +98,7 @@ class GameControllerTest {
         CreateBoardDTO createBoardDTO = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER.getId(), PlayerNumber.TWO, FIRST_PLAYER.getId()))).build();
         String requestBody = objectMapper.writeValueAsString(createBoardDTO);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/game/create-board")
+                        .post(GAME_BOARD_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
@@ -108,7 +109,7 @@ class GameControllerTest {
         CreateBoardDTO createBoardDTO = CreateBoardDTO.builder().players(new EnumMap<>(Map.of(PlayerNumber.ONE, FIRST_PLAYER.getId(), PlayerNumber.TWO, "SECOND_PLAYER.getId()"))).build();
         String requestBody = objectMapper.writeValueAsString(createBoardDTO);
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/game/create-board")
+                        .post(GAME_BOARD_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
@@ -117,7 +118,7 @@ class GameControllerTest {
     @Test
     void testCreateBoardWithNull() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/v1/game/create-board")
+                        .post(GAME_BOARD_URL)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
@@ -130,7 +131,7 @@ class GameControllerTest {
         initBoard = boardRepository.save(initBoard);
 
         BoardDTO boardDTO = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
-                        .get("/v1/game/" + initBoard.getId())
+                        .get(GAME_BOARD_URL + initBoard.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -142,7 +143,7 @@ class GameControllerTest {
     @Test
     void testFindGameNotFind() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/v1/game/" + "Invalid_Id")
+                        .get(GAME_BOARD_URL + "Invalid_Id")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
 
@@ -392,7 +393,7 @@ class GameControllerTest {
     private BoardDTO move(MoveRequestDTO moveRequest) throws Exception {
         String requestBody = objectMapper.writeValueAsString(moveRequest);
         BoardDTO boardDTO = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/game/move")
+                        .put("/v1/game/board/move")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -404,7 +405,7 @@ class GameControllerTest {
     private void badRequestMove(MoveRequestDTO moveRequest, String errorMessage) throws Exception {
         String requestBody = objectMapper.writeValueAsString(moveRequest);
         String message = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/v1/game/move")
+                        .put("/v1/game/board/move")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())

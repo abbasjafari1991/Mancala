@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/game")
+@RequestMapping("/v1/game/board")
 public class GameController {
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
     private final GameService gameService;
@@ -20,7 +20,20 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @PostMapping("/create-board")
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardDTO> getBoardById(@PathVariable String id) {
+        logger.info("Received a request to retrieve a board by ID: {}", id);
+        BoardDTO boardDTO = gameService.findById(id);
+        if (boardDTO != null) {
+            logger.info("Board retrieved successfully.");
+            return ResponseEntity.ok(boardDTO);
+        } else {
+            logger.info("Board not found for ID: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/")
     public ResponseEntity<BoardDTO> createBoard(@Valid @RequestBody CreateBoardDTO createBoardDTO) {
         logger.info("Received a request to create a board.");
         BoardDTO board = gameService.createBoard(createBoardDTO);
@@ -36,16 +49,5 @@ public class GameController {
         return ResponseEntity.ok(board);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BoardDTO> getBoardById(@PathVariable String id) {
-        logger.info("Received a request to retrieve a board by ID: {}", id);
-        BoardDTO boardDTO = gameService.findById(id);
-        if (boardDTO != null) {
-            logger.info("Board retrieved successfully.");
-            return ResponseEntity.ok(boardDTO);
-        } else {
-            logger.info("Board not found for ID: {}", id);
-            return ResponseEntity.notFound().build();
-        }
-    }
+
 }
