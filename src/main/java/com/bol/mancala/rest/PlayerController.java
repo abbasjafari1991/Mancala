@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/player")
 public class PlayerController {
@@ -22,6 +24,16 @@ public class PlayerController {
     public ResponseEntity<PlayerDTO> createPlayer(@RequestBody @Valid PlayerDTO player) {
         PlayerDTO createdPlayer = playerService.save(player);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPlayer);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PlayerDTO>> getPlayers() {
+        List<PlayerDTO> player = playerService.findAll();
+        if (player != null) {
+            return ResponseEntity.ok(player);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{id}")
