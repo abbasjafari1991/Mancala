@@ -17,6 +17,9 @@
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
+        <de.flapdoodle.embed.mongo.spring30x.version>4.5.2</de.flapdoodle.embed.mongo.spring30x.version>
+        <assertj-core.version>3.24.2</assertj-core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -58,19 +61,19 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.24.2</version>
+            <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
-            <version>4.5.2</version>
+            <version>${de.flapdoodle.embed.mongo.spring30x.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.0.2</version>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>
