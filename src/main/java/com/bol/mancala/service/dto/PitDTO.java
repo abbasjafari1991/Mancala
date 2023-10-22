@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PitDTO {
     private Integer amount;
-    private Integer index;
 }

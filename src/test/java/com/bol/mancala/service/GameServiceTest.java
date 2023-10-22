@@ -1,6 +1,8 @@
 package com.bol.mancala.service;
 
-import com.bol.mancala.entity.*;
+import com.bol.mancala.entity.Board;
+import com.bol.mancala.entity.Pit;
+import com.bol.mancala.entity.Player;
 import com.bol.mancala.entity.enumeration.GameStatus;
 import com.bol.mancala.entity.enumeration.PlayerNumber;
 import com.bol.mancala.repository.BoardRepository;
@@ -16,8 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import static com.bol.mancala.utils.BoardTestUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,7 +80,7 @@ class GameServiceTest {
     @Test
     void moveShouldClearHomeAddAddToNextHome_PlayerSide() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(0).build();
 
@@ -93,7 +99,7 @@ class GameServiceTest {
     @Test
     void moveShouldClearHomeAddAddToNextHomeOppositeSideAndAddToStore() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(5).build();
 
@@ -114,7 +120,7 @@ class GameServiceTest {
     @Test
     void moveShouldClearHomeAddAddToNextHomeOppositeSideAndAddToStoreShouldNotAddToOppositeStore() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(8);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
@@ -136,7 +142,7 @@ class GameServiceTest {
     @Test
     void gameShouldBeFinishIfSideIsEmpty() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(0).setAmount(0);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(1).setAmount(0);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(2).setAmount(0);
@@ -163,7 +169,7 @@ class GameServiceTest {
     @Test
     void moveWithNextRoundRewardShouldDoNotChangePlayerRound() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound)));
+        when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER)));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
         MoveRequestDTO moveRequest = MoveRequestDTO.builder().boardId(BOARD_ID).playerNumber(playerRound).version(0L).index(2).build();
 
@@ -183,7 +189,7 @@ class GameServiceTest {
     @Test
     void moveShouldTakeOppositePitRewardWhenLastStoneIsInEmptyHomeAndOppositeIsNotEmpty() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
@@ -206,7 +212,7 @@ class GameServiceTest {
     @Test
     void moveShouldNotTakeOppositePitRewardWhenLastStoneIsInEmptyHomeAndOppositeIsEmpty() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(4).setAmount(1);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(0).setAmount(0);
@@ -230,7 +236,7 @@ class GameServiceTest {
     @Test
     void moveShouldNotTakePitRewardWhenLastStoneIsInEmptyOppositeHome() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound.oppositeSide()).getPits().get(1).setAmount(0);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(3);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
@@ -278,7 +284,7 @@ class GameServiceTest {
     @Test
     void shouldThrowExceptionIfTheHomeIsEmpty() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound);
+        Board initBoard = initBoard(BOARD_ID, playerRound, FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
@@ -292,7 +298,7 @@ class GameServiceTest {
     @Test
     void shouldThrowExceptionIfTheHomeIsIsAnotherPlayerRound() {
         PlayerNumber playerRound = PlayerNumber.ONE;
-        Board initBoard = initBoard(BOARD_ID, playerRound.oppositeSide());
+        Board initBoard = initBoard(BOARD_ID, playerRound.oppositeSide(), FIRST_PLAYER, SECOND_PLAYER);
         initBoard.getPlayerBoards().get(playerRound).getPits().get(5).setAmount(0);
         when(boardRepository.findById(BOARD_ID)).thenReturn(Optional.of(initBoard));
         Mockito.when(boardRepository.save(any(Board.class))).thenReturn(Board.builder().id(BOARD_ID).version(0L).build());
@@ -303,31 +309,5 @@ class GameServiceTest {
 
     }
 
-    private Board initBoard(String id, PlayerNumber playerRound) {
-        return Board.builder().id(id).playerRound(playerRound).version(0L).status(GameStatus.IN_PROGRESS).playerBoards(
-                Map.of(
-                        PlayerNumber.ONE, PlayerBoard.builder().player(FIRST_PLAYER).store(new Store(0)).pits(getNewPitMaps()).build(),
-                        PlayerNumber.TWO, PlayerBoard.builder().player(FIRST_PLAYER).store(new Store(0)).pits(getNewPitMaps()).build()
-                )).build();
-    }
-
-    private Map<Integer, Pit> getNewPitMaps() {
-        return Map.of(0, getNewPit(), 1, getNewPit(), 2, getNewPit(), 3, getNewPit(), 4, getNewPit(), 5, getNewPit());
-    }
-
-    private Pit getNewPit() {
-        return Pit.builder().amount(4).build();
-    }
-
-    private void verifyBoard(Board board, GameStatus gameStatus, Map<Integer, Pit> boardOnePits, Map<Integer, Pit> boardTwoPits, int storeOneStone, int storeTwoStone) {
-        assertThat(board).extracting(Board::getStatus).isEqualTo(gameStatus);
-        assertThat(board).extracting(board1 -> board1.getPlayerBoards().keySet()).isNotNull().extracting(Set::size).isEqualTo(2);
-        assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE)).isNotNull();
-        assertThat(board.getPlayerBoards().get(PlayerNumber.ONE).getPits()).isNotEmpty().hasSize(6).containsExactlyInAnyOrderEntriesOf(boardOnePits);
-        assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.ONE).getStore()).isNotNull().extracting(Store::getAmount).isEqualTo(storeOneStone);
-        assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.TWO)).isNotNull();
-        assertThat(board.getPlayerBoards().get(PlayerNumber.TWO).getPits()).isNotEmpty().hasSize(6).containsExactlyInAnyOrderEntriesOf(boardTwoPits);
-        assertThat(board).extracting(board1 -> board1.getPlayerBoards().get(PlayerNumber.TWO).getStore()).isNotNull().extracting(Store::getAmount).isEqualTo(storeTwoStone);
-    }
 
 }
