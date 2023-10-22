@@ -9,6 +9,8 @@ import com.bol.mancala.service.dto.BoardDTO;
 import com.bol.mancala.service.dto.CreateBoardDTO;
 import com.bol.mancala.service.dto.MoveRequestDTO;
 import com.bol.mancala.service.mapper.BoardMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.util.stream.IntStream;
 
 @Service
 public class GameService {
+    private final Logger logger = LoggerFactory.getLogger(GameService.class);
 
     private static final int PIT_INIT_AMOUNT = 4;
     private static final int PIT_EMPTY_AMOUNT = 0;
@@ -37,8 +40,10 @@ public class GameService {
 
     @Transactional
     public BoardDTO createBoard(CreateBoardDTO createBoardDTO) {
+        logger.info("Received a request to create a board.");
         Board board = createBoardWithDefaultParameters(createBoardDTO);
         board = boardRepository.save(board);
+        logger.info("Board created successfully.");
         return boardMapper.toDto(board);
     }
 
@@ -56,18 +61,16 @@ public class GameService {
         return createBoard(playerNumberPlayer);
     }
 
-    private void checkThePlayersAreNotSame(Collection<String> players) {
-        if (Set.of(players).size() != players.size())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Players should be different.");
-    }
 
     @Transactional
     public BoardDTO move(MoveRequestDTO moveRequestDTO) {
+        logger.info("Received a move request.");
         Optional<Board> optionalBoard = boardRepository.findById(moveRequestDTO.getBoardId());
         boardInProgressingValidation(optionalBoard);
         return optionalBoard.map(board -> {
             play(moveRequestDTO, board);
             board = boardRepository.save(board);
+            logger.info("Move request processed successfully.");
             return boardMapper.toDto(board);
         }).orElse(null);
 
@@ -194,6 +197,7 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public BoardDTO findById(String id) {
+        logger.info("Received a request to retrieve a board by ID: {}", id);
         return boardRepository.findById(id).map(boardMapper::toDto).orElse(null);
     }
 }
