@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @Service
@@ -78,10 +79,10 @@ public class GameService {
 
     private void play(MoveRequestDTO moveRequestDTO, Board board) {
         PlayerNumber playerRound = board.getPlayerRound();
-        Integer index = moveRequestDTO.getIndex();
+        AtomicInteger index = new AtomicInteger(moveRequestDTO.getIndex());
         checkRoundOfPlayer(moveRequestDTO.getPlayerNumber(), playerRound);
-        Integer amount = takePitAmount(index, board, playerRound);
-        index++;
+        AtomicInteger amount = new AtomicInteger(takePitAmount(index, board, playerRound));
+        index.incrementAndGet();
         PlayerNumber nextPlayerNumber = moveAmountToNextPitsAndStore(index, board.getPlayerBoards(), playerRound, playerRound, amount);
         board.setPlayerRound(nextPlayerNumber);
         if (itCanBeFinish(board, playerRound)) {
@@ -142,9 +143,9 @@ public class GameService {
         }
     }
 
-    private Integer takePitAmount(Integer index, Board board, PlayerNumber playerRound) {
+    private Integer takePitAmount(AtomicInteger index, Board board, PlayerNumber playerRound) {
         PlayerBoard playerBoard = board.getPlayerBoards().get(playerRound);
-        Pit selectedPit = playerBoard.getPits().get(index);
+        Pit selectedPit = playerBoard.getPits().get(index.get());
         Integer amount = selectedPit.getAmount();
         if (amount.equals(PIT_EMPTY_AMOUNT))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "selected pit can not be empty");
@@ -158,41 +159,69 @@ public class GameService {
         }
     }
 
-    private PlayerNumber moveAmountToNextPitsAndStore(Integer index, Map<PlayerNumber, PlayerBoard> playerBoards, PlayerNumber currentBoardPlayerNumber, PlayerNumber starterPlayerNumber, Integer amount) {
-        PlayerBoard playerBoard = playerBoards.get(currentBoardPlayerNumber);
-        while (amount > PIT_EMPTY_AMOUNT) {
-            if (index > SIZE_OF_PIT)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Index it is not valid");
-            if (index == SIZE_OF_PIT) {
-                if (starterPlayerNumber == currentBoardPlayerNumber) {
-                    playerBoard.getStore().addAmountPlusOne();
-                    amount--;
-                    if (amount == PIT_EMPTY_AMOUNT) {
-                        return starterPlayerNumber;
-                    }
-                }
-                index = 0;
-                currentBoardPlayerNumber = currentBoardPlayerNumber.next();
-                playerBoard = playerBoards.get(currentBoardPlayerNumber);
+    private PlayerNumber moveAmountToNextPitsAndStore(AtomicInteger index, Map<PlayerNumber, PlayerBoard> playerBoards, PlayerNumber currentBoardPlayerNumber, PlayerNumber starterPlayerNumber, AtomicInteger amount) {
+        while (amount.get() > PIT_EMPTY_AMOUNT) {
+            PlayerBoard playerBoard = playerBoards.get(currentBoardPlayerNumber);
+            checkIndexRange(index);
+            if (index.get() == SIZE_OF_PIT) {
+                if (addToStoreIfItInThePlayerBoard(currentBoardPlayerNumber, starterPlayerNumber, amount, playerBoard))
+                    return starterPlayerNumber;
+                currentBoardPlayerNumber = chageSide(index, currentBoardPlayerNumber);
             } else {
-                Pit pit = playerBoard.getPits().get(index);
-                if (starterPlayerNumber == currentBoardPlayerNumber && amount == 1 && pit.isEmpty()) {
-                    int oppositeIndex = SIZE_OF_PIT - 1 - index;
-                    Pit oppositePit = playerBoards.get(currentBoardPlayerNumber.oppositeSide()).getPits().get(oppositeIndex);
-                    if (oppositePit.isEmpty()) {
-                        pit.addAmountPlusOne();
-                    } else {
-                        playerBoard.getStore().addToAmount(oppositePit.getAmount() + amount);
-                        oppositePit.clear();
-                    }
-                } else {
-                    pit.addAmountPlusOne();
-                }
-                index++;
-                amount--;
+                addToPit(index, playerBoards, currentBoardPlayerNumber, starterPlayerNumber, amount, playerBoard);
             }
         }
         return starterPlayerNumber.next();
+    }
+
+    private static PlayerNumber chageSide(AtomicInteger index, PlayerNumber currentBoardPlayerNumber) {
+        index.set(0);
+        currentBoardPlayerNumber = currentBoardPlayerNumber.next();
+        return currentBoardPlayerNumber;
+    }
+
+    private static void addToPit(AtomicInteger index, Map<PlayerNumber, PlayerBoard> playerBoards, PlayerNumber currentBoardPlayerNumber, PlayerNumber starterPlayerNumber, AtomicInteger amount, PlayerBoard playerBoard) {
+        Pit pit = playerBoard.getPits().get(index.get());
+        if (starterPlayerNumber == currentBoardPlayerNumber && amount.get() == 1 && pit.isEmpty()) {
+            tackTheRewardIfOppositeIsEmpty(index, playerBoards, currentBoardPlayerNumber, amount, playerBoard, pit);
+        } else {
+            pit.addAmountPlusOne();
+        }
+        index.incrementAndGet();
+        amount.decrementAndGet();
+    }
+
+    private static void tackTheRewardIfOppositeIsEmpty(AtomicInteger index, Map<PlayerNumber, PlayerBoard> playerBoards, PlayerNumber currentBoardPlayerNumber, AtomicInteger amount, PlayerBoard playerBoard, Pit pit) {
+        int oppositeIndex = getOppositeIndex(index);
+        Pit oppositePit = playerBoards.get(currentBoardPlayerNumber.oppositeSide()).getPits().get(oppositeIndex);
+        if (oppositePit.isEmpty()) {
+            pit.addAmountPlusOne();
+        } else {
+            tackTheRewardFromOpposite(amount, playerBoard, oppositePit);
+        }
+    }
+
+    private static int getOppositeIndex(AtomicInteger index) {
+        return SIZE_OF_PIT - 1 - index.get();
+    }
+
+    private static void tackTheRewardFromOpposite(AtomicInteger amount, PlayerBoard playerBoard, Pit oppositePit) {
+        playerBoard.getStore().addToAmount(oppositePit.getAmount() + amount.get());
+        oppositePit.clear();
+    }
+
+    private static boolean addToStoreIfItInThePlayerBoard(PlayerNumber currentBoardPlayerNumber, PlayerNumber starterPlayerNumber, AtomicInteger amount, PlayerBoard playerBoard) {
+        if (starterPlayerNumber == currentBoardPlayerNumber) {
+            playerBoard.getStore().addAmountPlusOne();
+            amount.getAndDecrement();
+            return amount.get() == PIT_EMPTY_AMOUNT;
+        }
+        return false;
+    }
+
+    private static void checkIndexRange(AtomicInteger index) {
+        if (index.get() > SIZE_OF_PIT || index.get() < 0)
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Index it is not valid");
     }
 
     @Transactional(readOnly = true)
